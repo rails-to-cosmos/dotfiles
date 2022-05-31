@@ -14,8 +14,7 @@
     "Emacs.menuBar" = false;
     "Emacs.toolBar" = false;
     "Emacs.verticalScrollBars" = false;
-    "Emacs.Font" =
-      "-JB-JetBrains Mono NL-normal-normal-normal-*-15-*-*-*-m-0-iso10646-1";
+    "Emacs.Font" = "-JB-JetBrains Mono NL-normal-normal-normal-*-15-*-*-*-m-0-iso10646-1";
   };
 
   programs.emacs = {
@@ -85,6 +84,8 @@
       virtualenvwrapper
       wgrep
       whitespace-cleanup-mode
+      ripgrep
+      rg
     ];
   };
 }
