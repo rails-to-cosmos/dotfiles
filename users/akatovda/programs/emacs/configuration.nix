@@ -1,0 +1,73 @@
+{ config, pkgs, ... }:
+
+{
+  programs.emacs = {
+    enable = true;
+    extraPackages = epkgs: with epkgs; [
+      aes
+      aio
+      anaconda-mode
+      auto-virtualenvwrapper
+      bind-key
+      cask
+      cask-mode
+      cider
+      clojure-mode
+      company
+      company-anaconda
+      company-nixos-options
+      company-quickhelp
+      company-statistics
+      consult
+      danneskjold-theme
+      dante
+      default-text-scale
+      diminish
+      dired-narrow
+      dired-rainbow
+      docker
+      dockerfile-mode
+      elfeed
+      eshell-prompt-extras
+      exec-path-from-shell
+      expand-region
+      f
+      feature-mode
+      firestarter
+      flycheck
+      flycheck
+      flycheck-pycheckers
+      font-utils
+      haskell-mode
+      highlight
+      jupyter
+      kubel
+      load-relative
+      magit
+      marginalia
+      multiple-cursors
+      nix-mode
+      orderless
+      paredit
+      paredit-everywhere
+      projectile
+      promise
+      pyvenv
+      queue
+      rainbow-delimiters
+      rainbow-mode
+      restart-emacs
+      slime
+      smartparens
+      sudo-edit
+      ts
+      ucs-utils
+      undo-tree
+      unicode-fonts
+      vertico
+      virtualenvwrapper
+      wgrep
+      whitespace-cleanup-mode
+    ];
+  };
+}
