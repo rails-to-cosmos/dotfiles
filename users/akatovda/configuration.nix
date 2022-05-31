@@ -31,8 +31,6 @@ in
     ./environment.nix
     ./fonts.nix
     ./services/xserver/configuration.nix
-    ./programs/xmobar/configuration.nix
-    ./programs/xmonad/configuration.nix
     ./services/grafana/configuration.nix
   ];
 
@@ -51,6 +49,8 @@ in
       ./programs/emacs/configuration.nix
       ./programs/rofi/configuration.nix
       ./programs/git/configuration.nix
+      ./programs/xmonad/configuration.nix
+      ./programs/xmobar/configuration.nix
       ./services/syncthing/configuration.nix
       ./services/gpg-agent/configuration.nix
     ];

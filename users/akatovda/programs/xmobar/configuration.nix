@@ -1,4 +1,6 @@
 { pkgs, ... }: {
+  home.file.".xmobarrc".source = ./xmobar.hs;
+
   nixpkgs.config.xmobar.enableXft = true;
 
   nixpkgs.config.haskellPackageOverrides = self: super: with pkgs.haskell.lib; {
@@ -13,7 +15,7 @@
     };
   };
 
-  environment.systemPackages = with pkgs; [
+  home.packages = with pkgs; [
     haskellPackages.xmobar
   ];
 }
