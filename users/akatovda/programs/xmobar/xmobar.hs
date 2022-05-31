@@ -1,7 +1,6 @@
 Config {
 
-   -- appearance
-  font =         "xft:Jetbrains Mono NL:size=15:antialias=true"
+  font =         "xft:Jetbrains Mono NL:size=12:antialias=true"
    , bgColor =      "black"
    , fgColor =      "#D0E1F9"
    , position =     Top

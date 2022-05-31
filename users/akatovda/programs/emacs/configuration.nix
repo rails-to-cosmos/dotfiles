@@ -1,6 +1,23 @@
 { config, pkgs, ... }:
 
 {
+  home.file.".emacs.d/init.el".source = ./emacs.d/init.el;
+  home.file.".emacs.d/packages".source = ./emacs.d/packages;
+  home.file.".emacs.d/lisp".source = ./emacs.d/lisp;
+  home.file.".emacs.d/snippets".source = ./emacs.d/snippets;
+
+  xresources.properties = {
+    # Set some Emacs GUI properties in the .Xresources file because they are
+    # expensive to set during initialization in Emacs lisp. This saves about
+    # half a second on startup time. See the following link for more options:
+    # https://www.gnu.org/software/emacs/manual/html_node/emacs/Fonts.html#Fonts
+    "Emacs.menuBar" = false;
+    "Emacs.toolBar" = false;
+    "Emacs.verticalScrollBars" = false;
+    "Emacs.Font" =
+      "-JB-JetBrains Mono NL-normal-normal-normal-*-15-*-*-*-m-0-iso10646-1";
+  };
+
   programs.emacs = {
     enable = true;
     extraPackages = epkgs: with epkgs; [

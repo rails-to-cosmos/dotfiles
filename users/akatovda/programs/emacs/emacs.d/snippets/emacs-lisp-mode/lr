@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: lr
+# key: lr
+# --
+(require 'load-relative)
+
+$0
+
+(provide-me)
