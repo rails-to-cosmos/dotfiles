@@ -19,11 +19,6 @@
 
 (transient-mark-mode)
 
-(menu-bar-mode -1)
-(when (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-(when (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-(when (fboundp 'horizontal-scroll-bar-mode) (horizontal-scroll-bar-mode -1))
-
 (setq comint-prompt-read-only t)
 (add-hook 'comint-output-filter-functions #'comint-strip-ctrl-m)
 
