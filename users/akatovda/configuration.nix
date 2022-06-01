@@ -23,6 +23,8 @@ let
   fi
   '';
 
+  brightness = pkgs.writeShellScriptBin "brightness" (builtins.readFile ./programs/brightness.sh);
+
 in
 
 {
@@ -58,6 +60,7 @@ in
     /* Here goes your home-manager config, eg home.packages = [ pkgs.foo ]; */
     home.packages = with pkgs; [
       switch-layout
+      brightness
       grafana
       fail2ban
       cask
@@ -77,7 +80,5 @@ in
       youtube-dl
       terminator
     ];
-
   });
-
 }

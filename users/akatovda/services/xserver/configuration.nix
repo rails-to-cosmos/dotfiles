@@ -15,8 +15,8 @@
     };
 
     desktopManager = {
-      xterm.enable = false;
       xfce.enable = false;
+      xterm.enable = false;
     };
 
     windowManager = {

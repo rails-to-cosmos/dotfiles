@@ -11,9 +11,6 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
   # Set your time zone.
   time.timeZone = "Europe/Moscow";
 
@@ -24,6 +21,10 @@
     useDHCP = false;
     interfaces.wlp0s20f3.useDHCP = true;
     networkmanager.enable = true;
+
+    hostName = "nixos"; # Define your hostname.
+    # wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+    # wireless.userControlled.enable = true;
   };
 
   # Configure network proxy if necessary

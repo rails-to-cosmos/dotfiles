@@ -1,6 +1,7 @@
 (my-project-provide emacs-config)
 
 (defun x-restart (&rest args)
+  (interactive)
   (shell-command "pkill xmobar")
   (shell-command "xmonad --restart"))
 

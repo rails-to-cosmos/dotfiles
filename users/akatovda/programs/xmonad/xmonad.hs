@@ -30,4 +30,7 @@ myConfig = def
   , ("M1-<Tab>", nextMatch Forward isOnAnyVisibleWS)
   , ("M1-S-<Tab>", nextMatch Backward isOnAnyVisibleWS)
   , ("M1-<Space>", spawn "switch-layout")
+  , ("<F8>", spawn "brightness Up")
+  , ("<F7>", spawn "brightness Down")
+  , ("M1-C-q", spawn "pkill xmobar && xmonad --recompile && xmonad --restart")
   ]
