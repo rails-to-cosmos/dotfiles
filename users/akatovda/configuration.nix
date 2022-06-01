@@ -3,27 +3,11 @@
 let
   home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/master.tar.gz";
 
-  switch-layout = pkgs.writeShellScriptBin "switch-layout" ''
-  if [[ -n "$1" ]]; then
-    setxkbmap $1
-  else
-    layout=$(setxkbmap -query | grep layout | awk '{print $2}')
+  switch-layout = pkgs.writeShellScriptBin "switch-layout"
+    (builtins.readFile ./programs/switch-layout.sh);
 
-    case $layout in
-        us)
-                setxkbmap ru
-            ;;
-        ru)
-                setxkbmap us
-            ;;
-        *)
-                setxkbmap us
-            ;;
-    esac
-  fi
-  '';
-
-  brightness = pkgs.writeShellScriptBin "brightness" (builtins.readFile ./programs/brightness.sh);
+  brightness = pkgs.writeShellScriptBin "brightness"
+    (builtins.readFile ./programs/brightness.sh);
 
 in
 
