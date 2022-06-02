@@ -5,7 +5,6 @@ let
 
   switch-layout = pkgs.writeShellScriptBin "switch-layout" (builtins.readFile ./programs/switch-layout.sh);
   brightness = pkgs.writeShellScriptBin "brightness" (builtins.readFile ./programs/brightness.sh);
-  rofi-emacs = pkgs.writeShellScriptBin "rofi-emacs" (builtins.readFile ./programs/rofi-emacs.sh);
 
 in
 
@@ -33,8 +32,6 @@ in
       ./programs/emacs/configuration.nix
       ./programs/rofi/configuration.nix
       ./programs/git/configuration.nix
-      # ./programs/xmonad/configuration.nix
-      # ./programs/xmobar/configuration.nix
       ./services/syncthing/configuration.nix
       ./services/gpg-agent/configuration.nix
     ];
@@ -43,7 +40,6 @@ in
     home.packages = with pkgs; [
       switch-layout
       brightness
-      rofi-emacs
       grafana
       fail2ban
       cask
