@@ -20,6 +20,7 @@
   packages.vertico-directory
   packages.nix-company
 
+  lisp.core.exwm
   lisp.core.dired
   lisp.core.eshell
   ;; lisp.core.locale
@@ -66,5 +67,7 @@
 (condition-case nil
     (load-file (f-join user-emacs-directory "init-local.el"))
   (file-missing nil))
+
+(toggle-frame-fullscreen)
 
 ;;; init.el ends here

@@ -89,6 +89,7 @@
     xorg.libXft
     xorg.libXpm
     xorg.libXrandr
+    xcompmgr
   ];
 
   # Open ports in the firewall.

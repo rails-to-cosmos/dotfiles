@@ -19,7 +19,9 @@
 
   programs.emacs = {
     enable = true;
+
     extraPackages = epkgs: with epkgs; [
+      exwm
       aes
       aio
       anaconda-mode
@@ -86,6 +88,8 @@
       whitespace-cleanup-mode
       ripgrep
       rg
+      reverse-im
+      wallpaper
     ];
   };
 }

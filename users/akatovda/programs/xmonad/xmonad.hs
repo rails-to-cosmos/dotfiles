@@ -1,6 +1,7 @@
 import XMonad
 import XMonad.Actions.GroupNavigation
 import XMonad.Config.Xfce
+import XMonad.Actions.CycleWindows
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.DynamicLog
 import XMonad.Layout.Magnifier
@@ -27,8 +28,6 @@ myConfig = def
 
   `additionalKeysP`
   [ ("M1-C-<Space>", spawn "rofi -show")
-  , ("M1-<Tab>", nextMatch Forward isOnAnyVisibleWS)
-  , ("M1-S-<Tab>", nextMatch Backward isOnAnyVisibleWS)
   , ("M1-<Space>", spawn "switch-layout")
   , ("<F8>", spawn "brightness Up")
   , ("<F7>", spawn "brightness Down")

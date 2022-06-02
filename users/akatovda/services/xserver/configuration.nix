@@ -1,4 +1,4 @@
-{ config, pkgs, ... }: {
+{ config, lib, pkgs, ... }: {
   services.xserver = {
     enable = true;
     autorun = true;
@@ -14,26 +14,36 @@
       enable = true;
     };
 
-    desktopManager = {
-      xfce.enable = false;
-      xterm.enable = false;
-    };
-
-    windowManager = {
-      xmonad = {
-        enable = true;
-        enableContribAndExtras = true;
-      };
-    };
+    # desktopManager = {
+    #   xfce.enable = false;
+    #   xterm.enable = false;
+    # };
 
     videoDrivers = [ "modesetting" ];
     useGlamor = true;
 
-    displayManager.autoLogin.enable = true;
-    displayManager.autoLogin.user = "akatovda";
-    displayManager.defaultSession = "none+xmonad";
-    displayManager.sessionCommands = ''
+    displayManager = {
+      lightdm = {
+        enable = true;
+        background = "/home/akatovda/Pictures/japan.jpg";
+      };
+
+      autoLogin = {
+        enable = true;
+        user = "akatovda";
+      };
+
+      sessionCommands = ''
         ${pkgs.xorg.xset}/bin/xset r rate 210 55
-    '';
+      '';
+    };
+
+    windowManager.session = pkgs.lib.singleton {
+      name = "exwm";
+      start = ''
+      xcompmgr -c &
+      ${pkgs.dbus.dbus-launch} --exit-with-session emacs -mm --fullscreen
+      '';
+    };
   };
 }

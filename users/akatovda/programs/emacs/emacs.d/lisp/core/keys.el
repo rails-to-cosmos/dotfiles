@@ -25,9 +25,20 @@
 (define-key dired-mode-map (kbd "<RET>") 'dired-down-please)
 (define-key dired-mode-map (kbd "C-c C-p") 'wdired-change-to-wdired-mode)
 
-;; (use-package mwe-log-commands)
-;; (use-package reverse-im
-;;   :config (reverse-im-activate "russian-computer"))
+(defun rofi ()
+  (interactive)
+  (call-process "rofi" nil nil nil "-show"))
+
+(defun switch-layout ()
+  (interactive)
+  (call-process "switch-layout"))
+
+(setq exwm-input-global-keys
+      (list (cons (kbd "C-M-<SPC>") #'rofi)
+            (cons (kbd "M-<SPC>") #'switch-layout)))
+
+(require 'reverse-im)
+(reverse-im-activate "russian-computer")
 
 ;; (use-package which-key
 ;;   :config

@@ -1,17 +1,14 @@
 (my-project-provide emacs-config)
 
-(defun x-restart (&rest args)
-  (interactive)
-  (shell-command "pkill xmobar")
-  (shell-command "xmonad --restart"))
+(defvar nixos-buffer  "*nixos*")
 
 (defun nixos-rebuild ()
   (interactive)
   (save-window-excursion
     (sudo-edit-find-file "/etc/nixos/configuration.nix")
-    (let ((nixos-buffer "*nixos*"))
-      (async-shell-command "nixos-rebuild switch" nixos-buffer)
-      (set-process-sentinel (get-buffer-process nixos-buffer) #'x-restart))))
+    (async-shell-command "nixos-rebuild switch" nixos-buffer))
+  (switch-to-buffer-other-window nixos-buffer)
+  (other-window 1))
 
 (defun nix-company-init ()
   (interactive)
