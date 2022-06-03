@@ -23,7 +23,6 @@
   lisp.core.exwm
   lisp.core.dired
   lisp.core.eshell
-  ;; lisp.core.locale
   lisp.core.scratch
 
   lisp.org.babel
@@ -33,6 +32,7 @@
   lisp.ui.rainbow
   lisp.ui.theme
   lisp.ui.fonts
+  lisp.ui.wallpaper
 
   lisp.editor.duplicate-line
   lisp.editor.parens

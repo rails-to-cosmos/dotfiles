@@ -15,27 +15,17 @@
 (define-key global-map (kbd "C-x f") #'projectile-find-file)
 (define-key global-map (kbd "C-c r") #'projectile-ripgrep)
 
-(define-key global-map (kbd "C-x C-d") 'dired-switch-buffers)
-(define-key global-map (kbd "C-x d") 'dired-default-directory)
-(define-key dired-mode-map "/" 'dired-narrow-fuzzy)
+(define-key global-map (kbd "C-x <RET>") #'execute-extended-command)
+(define-key global-map (kbd "C-x C-d") #'dired-switch-buffers)
+(define-key global-map (kbd "C-x d") #'dired-default-directory)
+(define-key dired-mode-map "/" #'dired-narrow-fuzzy)
 (define-key dired-mode-map "~" '(lambda () (interactive) (dired "~")))
-(define-key dired-mode-map (kbd "C-w") 'diredp-copy-abs-filenames-as-kill)
+(define-key dired-mode-map (kbd "C-w") #'diredp-copy-abs-filenames-as-kill)
 (define-key dired-mode-map (kbd "!") #'dired:xdg-open-marked-files)
-(define-key dired-mode-map (kbd "<DEL>") 'dired-up-please)
-(define-key dired-mode-map (kbd "<RET>") 'dired-down-please)
-(define-key dired-mode-map (kbd "C-c C-p") 'wdired-change-to-wdired-mode)
+(define-key dired-mode-map (kbd "<DEL>") #'dired-up-please)
+(define-key dired-mode-map (kbd "<RET>") #'dired-down-please)
+(define-key dired-mode-map (kbd "C-c C-p") #'wdired-change-to-wdired-mode)
 
-(defun rofi ()
-  (interactive)
-  (call-process "rofi" nil nil nil "-show"))
-
-(defun switch-layout ()
-  (interactive)
-  (call-process "switch-layout"))
-
-(setq exwm-input-global-keys
-      (list (cons (kbd "C-M-<SPC>") #'rofi)
-            (cons (kbd "M-<SPC>") #'switch-layout)))
 
 (require 'reverse-im)
 (reverse-im-activate "russian-computer")

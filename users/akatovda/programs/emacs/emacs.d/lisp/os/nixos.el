@@ -1,5 +1,7 @@
 (my-project-provide emacs-config)
 
+(require 'nix-company)
+
 (defvar nixos-buffer  "*nixos*")
 
 (defun nixos-rebuild ()

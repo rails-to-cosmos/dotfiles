@@ -21,11 +21,38 @@ in
     isNormalUser = true;
     home = "/home/akatovda";
     description = "Dmitry Akatov";
-    extraGroups = ["wheel" "networkmanager" "disk" "audio" "sound" "video" "systemd-journal" "input" "tty"];
+    extraGroups = [
+      "audio"
+      "disk"
+      "docker"
+      "input"
+      "networkmanager"
+      "sound"
+      "systemd-journal"
+      "tty"
+      "video"
+      "wheel"
+    ];
     createHome = true;
     uid = 1000;
     shell = "/run/current-system/sw/bin/bash";
   };
+
+  nixpkgs.config.allowUnfree = true;
+  hardware.opengl.driSupport32Bit = true;
+  hardware.nvidia.prime.offload.enable = true;
+  hardware.nvidia.prime = {
+    # Bus ID of the Intel GPU. You can find it using lspci, either under 3D or VGA
+    intelBusId = "00:02.0";
+    # Bus ID of the NVIDIA GPU. You can find it using lspci, either under 3D or VGA
+    nvidiaBusId = "01:00.0";
+  };
+
+  # virtualisation.virtualbox.host.enable = true;
+  # virtualisation.virtualbox.host.addNetworkInterface = true;
+  virtualisation.docker.enable = true;
+  virtualisation.docker.enableNvidia = true;
+  virtualisation.docker.extraOptions = "--default-runtime=nvidia";
 
   home-manager.users.akatovda = ({ config, ... }: {
     imports = [
@@ -36,28 +63,44 @@ in
       ./services/gpg-agent/configuration.nix
     ];
 
+    programs.firefox = {
+      enable = true;
+      # profiles = {
+      #   home = {
+      #     id = 0;
+      #     name = "rails-to-cosmos";
+      #     settings = {
+      #       "mousewheel.default.delta_multiplier_y" = "-100";
+      #     };
+      #   };
+      # };
+    };
+
     /* Here goes your home-manager config, eg home.packages = [ pkgs.foo ]; */
     home.packages = with pkgs; [
-      switch-layout
       brightness
-      grafana
-      fail2ban
       cask
       docker
-      firefox
+      fail2ban
       git
+      grafana
       htop
+      kompose
+      kubectl
+      kubernetes
       minikube
       nyxt
       python3
+      switch-layout
       syncthing
       tdesktop
+      terminator
       transmission
       virtualbox
       vlc
       xournalpp
       youtube-dl
-      terminator
+      pciutils
     ];
   });
 }
