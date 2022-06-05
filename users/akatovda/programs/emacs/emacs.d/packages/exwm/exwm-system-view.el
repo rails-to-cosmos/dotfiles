@@ -25,12 +25,12 @@
 ;;       (ctbl:cmodel-sort-action cp (cdr (ctbl:cp-get-selected cp)))
 ;;       (ctbl:cp-set-selected-cell cp cell-id))))
 
-(defun ctbl:navi-move-backward ()
+(defun ctbl::navi-move-backward ()
   (interactive)
   (let* ((cp (ctbl:cp-get-component))
          (cell-id (ctbl:cursor-to-nearest-cell))
          (row-id (car cell-id)))
-    (flet ((cursor-moved-p () (not (eql cell-id (ctbl:cursor-to-nearest-cell)))))
+    (cl-flet ((cursor-moved-p () (not (eql cell-id (ctbl:cursor-to-nearest-cell)))))
       (ctbl:navi-move-left)
       (unless (cursor-moved-p)
         (ctbl:navi-move-up)
@@ -38,14 +38,14 @@
             (ctbl:navi-move-right-most)
           (forward-line -4))))))
 
-(defun ctbl:navi-move-forward ()
+(defun ctbl::navi-move-forward ()
   (interactive)
   (when-let (cp (condition-case nil
                     (ctbl:cp-get-component)
                   (error nil)))
     (let* ((cell-id (ctbl:cursor-to-nearest-cell))
            (row-id (car cell-id)))
-      (flet ((cursor-moved-p () (not (eql cell-id (ctbl:cursor-to-nearest-cell)))))
+      (cl-flet ((cursor-moved-p () (not (eql cell-id (ctbl:cursor-to-nearest-cell)))))
         (ctbl:navi-move-right)
         (unless (cursor-moved-p)
           (ctbl:navi-move-down)
@@ -53,26 +53,26 @@
               (ctbl:navi-move-left-most)
             (forward-line 2)))))))
 
-(defun ctbl:navi-move-down-extended ()
+(defun ctbl::navi-move-down ()
   (interactive)
   (when-let (cp (condition-case nil
                     (ctbl:cp-get-component)
                   (error nil)))
     (let* ((cell-id (ctbl:cursor-to-nearest-cell))
            (row-id (car cell-id)))
-      (flet ((cursor-moved-p () (not (eql cell-id (ctbl:cursor-to-nearest-cell)))))
+      (cl-flet ((cursor-moved-p () (not (eql cell-id (ctbl:cursor-to-nearest-cell)))))
         (ctbl:navi-move-down)
         (unless (cursor-moved-p)
           (forward-line 2))))))
 
-(defun ctbl:navi-move-up-extended ()
+(defun ctbl::navi-move-up ()
   (interactive)
   (when-let (cp (condition-case nil
                     (ctbl:cp-get-component)
                   (error nil)))
     (let* ((cell-id (ctbl:cursor-to-nearest-cell))
            (row-id (car cell-id)))
-      (flet ((cursor-moved-p () (not (eql cell-id (ctbl:cursor-to-nearest-cell)))))
+      (cl-flet ((cursor-moved-p () (not (eql cell-id (ctbl:cursor-to-nearest-cell)))))
         (ctbl:navi-move-up)
         (unless (cursor-moved-p)
           (forward-line -4))))))
@@ -99,13 +99,13 @@
                        (make-ctbl:cmodel :title "Name" :align 'left)
                        (make-ctbl:cmodel :title "Signal" :align 'left :sorter sigsort)))
          (nmcli-map (ctbl:define-keymap
-                     '(("k" . ctbl:navi-move-up-extended)
-                       ("j" . ctbl:navi-move-down-extended)
+                     '(("k" . ctbl::navi-move-up)
+                       ("j" . ctbl::navi-move-down)
                        ("h" . ctbl:navi-move-left)
                        ("l" . ctbl:navi-move-right)
 
-                       ("p" . ctbl:navi-move-up-extended)
-                       ("n" . ctbl:navi-move-down-extended)
+                       ("p" . ctbl::navi-move-up)
+                       ("n" . ctbl::navi-move-down)
                        ("b" . ctbl:navi-move-left)
                        ("f" . ctbl:navi-move-right)
 
@@ -121,8 +121,8 @@
                        ([mouse-1] . ctbl:navi-on-click)
                        ("C-m" . ctbl:navi-on-click)
                        ("RET" . ctbl:navi-on-click)
-                       ("TAB" . ctbl:navi-move-forward)
-                       ("<backtab>" . ctbl:navi-move-backward)
+                       ("TAB" . ctbl::navi-move-forward)
+                       ("<backtab>" . ctbl::navi-move-backward)
 
                        ("^" . ctbl::sort-current))))
          (data nil))
@@ -144,6 +144,8 @@
                               (with-current-buffer buffer
 
                                 (special-mode)
+                                (local-set-key (kbd "n") #'forward-line)
+                                (local-set-key (kbd "p") #'previous-line)
 
                                 (let ((inhibit-read-only t))
                                   (delete-region (point-min) (point-max))
