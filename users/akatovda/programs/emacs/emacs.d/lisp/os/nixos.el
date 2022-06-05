@@ -9,8 +9,9 @@
   (save-window-excursion
     (sudo-edit-find-file "/etc/nixos/configuration.nix")
     (async-shell-command "nixos-rebuild switch" nixos-buffer))
-  (switch-to-buffer-other-window nixos-buffer)
-  (other-window 1))
+  ;; (switch-to-buffer-other-window nixos-buffer)
+  ;; (other-window 1)
+  )
 
 (defun nix-company-init ()
   (interactive)

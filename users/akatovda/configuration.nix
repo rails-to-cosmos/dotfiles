@@ -39,6 +39,12 @@ in
   };
 
   nixpkgs.config.allowUnfree = true;
+
+  sound.enable = true;
+  hardware.pulseaudio.enable = true;
+  hardware.pulseaudio.package = pkgs.pulseaudioFull;
+  hardware.pulseaudio.support32Bit = true;
+
   hardware.opengl.driSupport32Bit = true;
   hardware.nvidia.prime.offload.enable = true;
   hardware.nvidia.prime = {
@@ -78,6 +84,7 @@ in
 
     /* Here goes your home-manager config, eg home.packages = [ pkgs.foo ]; */
     home.packages = with pkgs; [
+      pavucontrol
       brightness
       cask
       docker
@@ -101,6 +108,7 @@ in
       xournalpp
       youtube-dl
       pciutils
+      jq
     ];
   });
 }

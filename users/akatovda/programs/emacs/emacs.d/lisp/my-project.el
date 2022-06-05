@@ -25,7 +25,7 @@
               (load-file module-filename)
             (file-missing
              (message "File %s is missing, trying to use package %s" module-filename module-package)
-             (use-package ,module))))
+             (use-package ,module :no-require t))))
      into forms
      finally (return (append `(progn) forms))))
 

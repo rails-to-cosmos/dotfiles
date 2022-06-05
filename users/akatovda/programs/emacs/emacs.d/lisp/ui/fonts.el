@@ -1,5 +1,14 @@
 (my-project-provide emacs-config)
 
+(require 'all-the-icons)
+
+(defun what-face (pos)
+  "Tell me what face used in POS."
+  (interactive "d")
+  (let ((face (or (get-char-property (point) 'read-face-name)
+                  (get-char-property (point) 'face))))
+    (if face (message "Face: %s" face) (message "No face at %d" pos))))
+
 (defun my--set-font (face &rest params)
   (custom-set-faces (list face (list (list t params)))))
 
@@ -32,5 +41,6 @@
 (default-text-scale-mode 1)
 (advice-add #'default-text-scale-increase :after #'my--adapt-font)
 (advice-add #'default-text-scale-decrease :after #'my--adapt-font)
-(my--adapt-font 110 "Jetbrains Mono NL")
+;; (my--adapt-font 100 "Jetbrains Mono NL")
+;; (my--adapt-font 100 "Font Awesome 9")
 (add-hook 'org-mode-hook #'my--adapt-font)

@@ -1,11 +1,10 @@
 (my-project-provide emacs-config)
 
-(require 'danneskjold-theme)
+;; (require 'danneskjold-theme)
+;; (enable-theme 'danneskjold)
 
-;; (require 'danneskjold-light-theme)
-;; (enable-theme 'danneskjold-light)
-
-(enable-theme 'danneskjold)
+(require 'danneskjold-light-theme)
+(enable-theme 'danneskjold-light)
 
 (eval-after-load 'org-faces
   '(defcustom org-todo-keyword-faces nil
@@ -59,3 +58,5 @@ If KWD is a number, get the corresponding match group."
 
 ;; (setq org-src-block-faces '(("emacs-lisp" (:background "#EEE2FF"))
 ;;                             ("python" (:background "#E5FFB8"))))
+
+;; )

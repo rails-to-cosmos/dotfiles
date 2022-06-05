@@ -1,0 +1,3 @@
+[submodule "users/akatovda/programs/emacs/emacs.d/packages/tui"]
+	path = users/akatovda/programs/emacs/emacs.d/packages/tui
+	url = git@github.com:ebpa/tui.el.git

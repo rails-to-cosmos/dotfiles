@@ -21,9 +21,10 @@
     enable = true;
 
     extraPackages = epkgs: with epkgs; [
-      exwm
+      a
       aes
       aio
+      all-the-icons
       anaconda-mode
       auto-virtualenvwrapper
       bind-key
@@ -49,11 +50,12 @@
       eshell-prompt-extras
       exec-path-from-shell
       expand-region
+      exwm
       f
       feature-mode
       firestarter
       flycheck
-      flycheck
+      flycheck-indicator
       flycheck-pycheckers
       font-utils
       haskell-mode
@@ -75,6 +77,9 @@
       rainbow-delimiters
       rainbow-mode
       restart-emacs
+      reverse-im
+      rg
+      ripgrep
       slime
       smartparens
       sudo-edit
@@ -84,12 +89,16 @@
       unicode-fonts
       vertico
       virtualenvwrapper
+      wallpaper
       wgrep
       whitespace-cleanup-mode
-      ripgrep
-      rg
-      reverse-im
-      wallpaper
+
+      yasnippet
+      calfw
+      calfw-org
+      calfw-ical
+      ctable
+      navigel
     ];
   };
 }

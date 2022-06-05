@@ -41,10 +41,6 @@
   # Enable CUPS to print documents.
   # services.printing.enable = true;
 
-  # Enable sound.
-  sound.enable = true;
-  # hardware.pulseaudio.enable = true;
-
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   programs.mtr.enable = true;
@@ -83,13 +79,13 @@
     ripgrep
     wget
     wirelesstools
+    xcompmgr
     xorg.libX11
     xorg.libXScrnSaver
     xorg.libXext
     xorg.libXft
     xorg.libXpm
     xorg.libXrandr
-    xcompmgr
   ];
 
   # Open ports in the firewall.
