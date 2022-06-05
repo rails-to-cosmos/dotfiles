@@ -8,6 +8,21 @@
 (require 'ctable)
 (require 's)
 
+(require 'simple)
+
+(defvar exwm-system-report-mode-map
+  (let ((map (make-sparse-keymap)))
+    (suppress-keymap map)
+
+    (define-key map "n" 'forward-line)
+    (define-key map "p" 'previous-line)
+    (define-key map "g" 'exwm-system-report)
+
+    map))
+
+(define-derived-mode exwm-system-report-mode special-mode "exwm system report"
+                     "Special mode extended to work with ctbl.")
+
 (defun ctbl::sort-current ()
   (interactive)
   (let ((cp (ctbl:cp-get-component))
@@ -77,27 +92,38 @@
         (unless (cursor-moved-p)
           (forward-line -4))))))
 
+(defun boolsort (lhs rhs)
+  (cond
+    ((not (or lhs rhs)) 0)
+    (lhs -1)
+    (rhs 1)
+    (t 0)))
+
+(defun sigsort (lhs rhs)
+  (ctbl:sort-number-lessp
+   (s-count-matches "_" lhs)
+   (s-count-matches "_" rhs)))
+
 (defun exwm-system-report ()
   (interactive)
   (let* ((buffer (get-buffer-create "*exwm-system-report*"))
          (process (start-process "nmcli" buffer "nmcli" "device" "wifi"))
          (splitter "[[:space:]]\\{2,\\}")
-         (boolsort (lambda (lhs rhs)
-                     (cond
-                       ((not (or lhs rhs)) 0)
-                       (lhs -1)
-                       (rhs 1)
-                       (t 0))))
-         (sigsort (lambda (lhs rhs)
-                    (ctbl:sort-number-lessp
-                     (s-count-matches "_" lhs)
-                     (s-count-matches "_" rhs))))
          (schema (list (make-ctbl:cmodel :title ""
                                          :align 'right
                                          :min-width 1
-                                         :sorter boolsort)
-                       (make-ctbl:cmodel :title "Name" :align 'left)
-                       (make-ctbl:cmodel :title "Signal" :align 'left :sorter sigsort)))
+                                         :sorter #'boolsort)
+                       (make-ctbl:cmodel :title "Name"
+                                         :align 'left)
+                       (make-ctbl:cmodel :title "Signal"
+                                         :align 'left
+                                         :sorter #'sigsort)
+                       (make-ctbl:cmodel :title "Channel"
+                                         :align 'left)
+                       (make-ctbl:cmodel :title "Rate"
+                                         :align 'left)
+                       (make-ctbl:cmodel :title "Security"
+                                         :align 'left)))
          (nmcli-map (ctbl:define-keymap
                      '(("k" . ctbl::navi-move-up)
                        ("j" . ctbl::navi-move-down)
@@ -114,7 +140,7 @@
                        ("e" . ctbl:navi-move-right-most)
                        ("a" . ctbl:navi-move-left-most)
 
-                       ("g" . ctbl:action-update-buffer)
+                       ("g" . exwm-system-report)
 
                        ("?" . ctbl:describe-bindings)
 
@@ -136,16 +162,20 @@
                              collect (-let [(in-use bssid ssid mode channel rate signal bars security)
                                             (s-split splitter line)]
                                        (when ssid
-                                         (cl-pushnew (list (string= in-use "*") ssid bars) data))))))
+                                         (cl-pushnew (list (string= in-use "*")
+                                                           ssid
+                                                           bars
+                                                           channel
+                                                           rate
+                                                           security)
+                                                     data))))))
 
     (set-process-sentinel process
                           (lambda (process status)
                             (when (string= (s-trim status) "finished")
                               (with-current-buffer buffer
 
-                                (special-mode)
-                                (local-set-key (kbd "n") #'forward-line)
-                                (local-set-key (kbd "p") #'previous-line)
+                                (exwm-system-report-mode)
 
                                 (let ((inhibit-read-only t))
                                   (delete-region (point-min) (point-max))
@@ -165,6 +195,6 @@
                                        (message "CTable : Click Hook [%S] [%S] [%S]"
                                                 (ctbl:cp-get-selected component)
                                                 (ctbl:cp-get-selected-data-row component)
-                                                (ctbl:cp-get-selected-data-cell component))))
-                                    )))
-                              (switch-to-buffer-other-window buffer))))))
+                                                (ctbl:cp-get-selected-data-cell component)))))))
+                              (unless (eql (current-buffer) buffer)
+                                (switch-to-buffer-other-window buffer)))))))
