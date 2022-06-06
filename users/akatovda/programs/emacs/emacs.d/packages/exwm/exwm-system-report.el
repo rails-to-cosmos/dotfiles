@@ -104,71 +104,78 @@
    (s-count-matches "_" lhs)
    (s-count-matches "_" rhs)))
 
+(defvar exwm-system-report-nm-schema
+  (list (make-ctbl:cmodel :title ""
+                          :align 'right
+                          :min-width 1
+                          :sorter #'boolsort)
+        (make-ctbl:cmodel :title "Name"
+                          :align 'left)
+        (make-ctbl:cmodel :title "Signal"
+                          :align 'left
+                          :sorter #'sigsort)
+        (make-ctbl:cmodel :title "Channel"
+                          :align 'left)
+        (make-ctbl:cmodel :title "Rate"
+                          :align 'left)
+        (make-ctbl:cmodel :title "Security"
+                          :align 'left)))
+
+(defvar exwm-system-report-nm-map
+  (ctbl:define-keymap
+   '(("k" . ctbl::navi-move-up)
+     ("j" . ctbl::navi-move-down)
+     ("h" . ctbl:navi-move-left)
+     ("l" . ctbl:navi-move-right)
+
+     ("p" . ctbl::navi-move-up)
+     ("n" . ctbl::navi-move-down)
+     ("b" . ctbl:navi-move-left)
+     ("f" . ctbl:navi-move-right)
+
+     ("c" . ctbl:navi-jump-to-column)
+
+     ("e" . ctbl:navi-move-right-most)
+     ("a" . ctbl:navi-move-left-most)
+
+     ("g" . exwm-system-report)
+
+     ("?" . ctbl:describe-bindings)
+
+     ([mouse-1] . ctbl:navi-on-click)
+     ("C-m" . ctbl:navi-on-click)
+     ("RET" . ctbl:navi-on-click)
+     ("TAB" . ctbl::navi-move-forward)
+     ("<backtab>" . ctbl::navi-move-backward)
+
+     ("^" . ctbl::sort-current))))
+
 (defun exwm-system-report ()
   (interactive)
   (let* ((buffer (get-buffer-create "*exwm-system-report*"))
-         (process (start-process "nmcli" buffer "nmcli" "device" "wifi"))
-         (splitter "[[:space:]]\\{2,\\}")
-         (schema (list (make-ctbl:cmodel :title ""
-                                         :align 'right
-                                         :min-width 1
-                                         :sorter #'boolsort)
-                       (make-ctbl:cmodel :title "Name"
-                                         :align 'left)
-                       (make-ctbl:cmodel :title "Signal"
-                                         :align 'left
-                                         :sorter #'sigsort)
-                       (make-ctbl:cmodel :title "Channel"
-                                         :align 'left)
-                       (make-ctbl:cmodel :title "Rate"
-                                         :align 'left)
-                       (make-ctbl:cmodel :title "Security"
-                                         :align 'left)))
-         (nmcli-map (ctbl:define-keymap
-                     '(("k" . ctbl::navi-move-up)
-                       ("j" . ctbl::navi-move-down)
-                       ("h" . ctbl:navi-move-left)
-                       ("l" . ctbl:navi-move-right)
-
-                       ("p" . ctbl::navi-move-up)
-                       ("n" . ctbl::navi-move-down)
-                       ("b" . ctbl:navi-move-left)
-                       ("f" . ctbl:navi-move-right)
-
-                       ("c" . ctbl:navi-jump-to-column)
-
-                       ("e" . ctbl:navi-move-right-most)
-                       ("a" . ctbl:navi-move-left-most)
-
-                       ("g" . exwm-system-report)
-
-                       ("?" . ctbl:describe-bindings)
-
-                       ([mouse-1] . ctbl:navi-on-click)
-                       ("C-m" . ctbl:navi-on-click)
-                       ("RET" . ctbl:navi-on-click)
-                       ("TAB" . ctbl::navi-move-forward)
-                       ("<backtab>" . ctbl::navi-move-backward)
-
-                       ("^" . ctbl::sort-current))))
+         (process (start-process "nmcli" buffer "nmcli" "-t" "device" "wifi"))
+         (splitter "[^\\]:")
+         (schema exwm-system-report-nm-schema)
          (data nil))
-
     (set-process-filter process
                         (lambda (process output)
                           (cl-loop
-                             with split-out = (s-split "\n" output)
-                             with contents = (cdr split-out)
-                             for line in contents
-                             collect (-let [(in-use bssid ssid mode channel rate signal bars security)
-                                            (s-split splitter line)]
-                                       (when ssid
-                                         (cl-pushnew (list (string= in-use "*")
-                                                           ssid
-                                                           bars
-                                                           channel
-                                                           rate
-                                                           security)
-                                                     data))))))
+                             for line in (s-split "\n" output)
+                             for rownum from 0
+                             do (let* ((separator ":")
+                                       (escape-symbol "\\")
+                                       (parted (let ((group 0)) (--partition-by (if (s-ends-with? escape-symbol it)
+                                                                                    (1+ group)
+                                                                                  (incf group))
+                                                                                (s-split separator line))))
+                                       (pretty (cl-loop for chunk in parted
+                                                  if (= 1 (length chunk))
+                                                  collect (car chunk)
+                                                  else
+                                                  collect (s-replace escape-symbol "" (s-join separator chunk)))))
+                                  (-let [(in-use bssid ssid mode channel rate signal bars security) pretty]
+                                    (when ssid
+                                      (cl-pushnew (list (string= in-use "*") ssid bars channel rate security) data)))))))
 
     (set-process-sentinel process
                           (lambda (process status)
@@ -186,12 +193,11 @@
                                                  :sort-state '(3)))
                                          (component (ctbl:create-table-component-region
                                                      :model model
-                                                     :keymap nmcli-map)))
+                                                     :keymap exwm-system-report-nm-map)))
 
                                     (ctbl:cp-add-click-hook
                                      component
                                      (lambda ()
-                                       (ctbl:cmodel-sort-action component (cdr (ctbl:cp-get-selected component)))
                                        (message "CTable : Click Hook [%S] [%S] [%S]"
                                                 (ctbl:cp-get-selected component)
                                                 (ctbl:cp-get-selected-data-row component)

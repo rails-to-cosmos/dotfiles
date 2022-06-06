@@ -110,7 +110,7 @@
   ;; wgrep
   ;; whitespace-cleanup-mode
 
-  packages.exwm.exwm-system-view
+  packages.exwm.exwm-system-report
   packages.expal
   packages.dired+
   packages.grab-and-drag
