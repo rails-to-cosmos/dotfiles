@@ -68,16 +68,20 @@
 ;;       (my-switch-to-window (cadar windows))
 ;;     (mapcar #'my-switch-to-window (alist-get (completing-read "Window: " windows) windows nil nil #'string=))))
 
-(define-minor-mode sticky-mode
+(define-minor-mode pin-mode
     "Make the current window always display this buffer."
-  nil " st" nil
-  (let ((w (selected-window)))
-    (set-window-dedicated-p w sticky-mode)
-    (set-window-parameter w 'no-other-window t)
-    (set-window-parameter w 'no-delete-other-windows t)
-    (setq-local mode-line-format nil)))
+  nil
+  #(" " 0 1 (rear-nonsticky t display nil font-lock-face (:family "github-octicons" :height 1.2) face (:family "github-octicons" :height 1.2)))
+  nil
+  (let ((window (selected-window)))
+    (cond (pin-mode (set-window-dedicated-p window pin-mode)
+                    (set-window-parameter window 'no-other-window t)
+                    (set-window-parameter window 'no-delete-other-windows t))
+          (t (set-window-dedicated-p window pin-mode)
+             (set-window-parameter window 'no-other-window nil)
+             (set-window-parameter window 'no-delete-other-windows nil)))))
 
-(global-set-key [f11] 'sticky-mode)
+(global-set-key [f11] 'pin-mode)
 
 (define-temporary-mode shrink-window-mode
     "Navigate between git hunks in the buffer."
