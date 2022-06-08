@@ -148,7 +148,7 @@
      ("e" . ctbl:navi-move-right-most)
      ("a" . ctbl:navi-move-left-most)
 
-     ("g" . exwm-system-report)
+     ("g" . exwm-system-report:refresh)
 
      ("?" . ctbl:describe-bindings)
 
@@ -209,9 +209,11 @@
           (t (mapc #'cancel-timer exwm-monitoring-timers)
              (setq exwm-monitoring-timers '()))))
 
+(defvar exwm-system-report-buffer "*exwm-system-report*")
+
 (defun exwm-system-report ()
   (interactive)
-  (let* ((buffer (get-buffer-create "*exwm-system-report*"))
+  (let* ((buffer (get-buffer-create exwm-system-report-buffer))
          (now (current-time))
          (data (cl-loop for (key . value) in exwm-system-report-data
                   collect (list (->> key
@@ -234,6 +236,14 @@
          :keymap exwm-system-report-nm-map)))
     (unless (eql (current-buffer) buffer)
       (switch-to-buffer-other-window buffer))))
+
+(defun exwm-system-report:refresh ()
+  (interactive)
+  (with-current-buffer exwm-system-report-buffer
+    (let ((point (point)))
+      (exwm-system-report)
+      (goto-char point)
+      (ctbl:navi-goto-cell (ctbl:cursor-to-cell)))))
 
 (defun exwm-network-report ()
   (interactive)
