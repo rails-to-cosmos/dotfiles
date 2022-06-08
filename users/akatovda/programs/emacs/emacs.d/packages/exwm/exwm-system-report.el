@@ -40,8 +40,9 @@
    (string-to-number lhs)
    (string-to-number rhs)))
 
-(define-derived-mode exwm-system-report-mode special-mode "exwm"
-                     "Special mode extended to work with ctbl.")
+(define-derived-mode exwm-system-report-mode special-mode
+  #("" 0 1 (rear-nonsticky t display (raise -0.15) font-lock-face (:family "file-icons" :height 1.2) face (:family "file-icons" :height 1.2)))
+  "Special mode extended to work with ctbl.")
 
 (defun ctbl::sort-current ()
   (interactive)
