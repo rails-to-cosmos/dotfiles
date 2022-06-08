@@ -2,12 +2,12 @@
 
 (my-project-provide emacs-config)
 
-(require 'navigel)
+(require 'a)
+(require 'battery)
+(require 'ctable)
 (require 'dash)
 (require 'pcase)
-(require 'ctable)
 (require 's)
-
 (require 'simple)
 
 (defvar exwm-system-report-mode-map
@@ -20,7 +20,27 @@
 
     map))
 
-(define-derived-mode exwm-system-report-mode special-mode "exwm system report"
+;; Sorters
+
+(defun boolsort (lhs rhs)
+  (cond
+    ((not (or lhs rhs)) 0)
+    (lhs -1)
+    (rhs 1)
+    (t 0)))
+
+(defun sigsort (lhs rhs)
+  (ctbl:sort-number-lessp
+   (s-count-matches "_" lhs)
+   (s-count-matches "_" rhs)))
+
+(defun numsort (lhs rhs)
+  "Sort collection of strings by first number parsed."
+  (ctbl:sort-number-lessp
+   (string-to-number lhs)
+   (string-to-number rhs)))
+
+(define-derived-mode exwm-system-report-mode special-mode "exwm"
                      "Special mode extended to work with ctbl.")
 
 (defun ctbl::sort-current ()
@@ -92,18 +112,6 @@
         (unless (cursor-moved-p)
           (forward-line -4))))))
 
-(defun boolsort (lhs rhs)
-  (cond
-    ((not (or lhs rhs)) 0)
-    (lhs -1)
-    (rhs 1)
-    (t 0)))
-
-(defun sigsort (lhs rhs)
-  (ctbl:sort-number-lessp
-   (s-count-matches "_" lhs)
-   (s-count-matches "_" rhs)))
-
 (defvar exwm-system-report-nm-schema
   (list (make-ctbl:cmodel :title ""
                           :align 'right
@@ -115,9 +123,11 @@
                           :align 'left
                           :sorter #'sigsort)
         (make-ctbl:cmodel :title "Channel"
-                          :align 'left)
+                          :align 'left
+                          :sorter #'numsort)
         (make-ctbl:cmodel :title "Rate"
-                          :align 'left)
+                          :align 'left
+                          :sorter #'numsort)
         (make-ctbl:cmodel :title "Security"
                           :align 'left)))
 
@@ -150,32 +160,109 @@
 
      ("^" . ctbl::sort-current))))
 
+(defvar exwm-system-report-data (a-list))
+
+(defun exwm-system-report--set-date-time ()
+  (setq exwm-system-report-data
+        (let ((now (current-time)))
+          (a-assoc exwm-system-report-data
+                   :date (format-time-string "%a, %d %b %Y" now)
+                   :time (format-time-string "%H:%M:%S %Z" now)))))
+
+(defun exwm-system-report--set-battery-status ()
+  (setq exwm-system-report-data
+        (let ((battery-status (funcall battery-status-function)))
+          (a-assoc exwm-system-report-data
+                   :power (battery-format "%L" battery-status)
+                   :battery (battery-format "%B" battery-status)
+                   :load (battery-format "%p%%" battery-status)
+                   :remaining (battery-format "%t" battery-status)))))
+
+(defun exwm-system-report--set-network-status ()
+  (setq exwm-system-report-data
+        (let ((battery-status (funcall battery-status-function)))
+          (a-assoc exwm-system-report-data
+                   :network (s-trim (shell-command-to-string "nmcli networking connectivity"))))))
+
+(defvar exwm-monitoring-mode-map (make-sparse-keymap)
+  "Keymap used by `exwm-monitoring-mode'.")
+
+(defvar exwm-monitoring-daemons
+  #'(exwm-system-report--set-date-time
+     exwm-system-report--set-battery-status
+     exwm-system-report--set-network-status)
+  "List of functions to run in a background.")
+
+(defvar exwm-monitoring-timers '()
+  "List of active timers.")
+
+(define-minor-mode exwm-monitoring-mode
+    "Monitor exwm system in a background and refresh `exwm-system-report-data'."
+  nil #(" " 0 1 (rear-nonsticky t display nil font-lock-face (:family "FontAwesome" :height 1.2) face (:family "FontAwesome" :height 1.2))) exwm-monitoring-mode-map)
+
+(define-globalized-minor-mode global-exwm-monitoring-mode
+    exwm-monitoring-mode exwm-monitoring-mode nil
+    (cond (global-exwm-monitoring-mode (cl-loop for daemon in (reverse exwm-monitoring-daemons)
+                                          initially (setq exwm-system-report-data nil)
+                                          do (funcall daemon)
+                                          do (pushnew (run-with-idle-timer 1 t daemon) exwm-monitoring-timers)))
+          (t (mapc #'cancel-timer exwm-monitoring-timers)
+             (setq exwm-monitoring-timers '()))))
+
 (defun exwm-system-report ()
   (interactive)
   (let* ((buffer (get-buffer-create "*exwm-system-report*"))
+         (now (current-time))
+         (data (cl-loop for (key . value) in exwm-system-report-data
+                  collect (list (->> key
+                                     symbol-name
+                                     s-titleize
+                                     (s-replace-regexp "^:" ""))
+                                value)))
+         (schema (list (make-ctbl:cmodel :title "Key")
+                       (make-ctbl:cmodel :title "Value")))
+         (model (make-ctbl:model
+                 :column-model schema
+                 :data data)))
+    (with-current-buffer buffer
+      (exwm-system-report-mode)
+      (let ((inhibit-read-only t))
+        (delete-region (point-min) (point-max))
+        (insert "Overview\n")
+        (ctbl:create-table-component-region
+         :model model
+         :keymap exwm-system-report-nm-map)))
+    (unless (eql (current-buffer) buffer)
+      (switch-to-buffer-other-window buffer))))
+
+(defun exwm-network-report ()
+  (interactive)
+  (let* ((buffer (get-buffer-create "*exwm-system-report*"))
+
          (process (start-process "nmcli" buffer "nmcli" "-t" "device" "wifi"))
-         (splitter "[^\\]:")
+         (process-output-parser (lambda (line)
+                                  (let* ((separator ":")
+                                         (escape-symbol "\\")
+                                         (parted (let ((group 0)) (--partition-by (if (s-ends-with? escape-symbol it)
+                                                                                      (1+ group)
+                                                                                    (incf group))
+                                                                                  (s-split separator line)))))
+                                    (cl-loop for chunk in parted
+                                       if (= 1 (length chunk))
+                                       collect (car chunk)
+                                       else
+                                       collect (s-replace escape-symbol "" (s-join separator chunk))))))
+
          (schema exwm-system-report-nm-schema)
          (data nil))
+
     (set-process-filter process
                         (lambda (process output)
                           (cl-loop
                              for line in (s-split "\n" output)
-                             for rownum from 0
-                             do (let* ((separator ":")
-                                       (escape-symbol "\\")
-                                       (parted (let ((group 0)) (--partition-by (if (s-ends-with? escape-symbol it)
-                                                                                    (1+ group)
-                                                                                  (incf group))
-                                                                                (s-split separator line))))
-                                       (pretty (cl-loop for chunk in parted
-                                                  if (= 1 (length chunk))
-                                                  collect (car chunk)
-                                                  else
-                                                  collect (s-replace escape-symbol "" (s-join separator chunk)))))
-                                  (-let [(in-use bssid ssid mode channel rate signal bars security) pretty]
-                                    (when ssid
-                                      (cl-pushnew (list (string= in-use "*") ssid bars channel rate security) data)))))))
+                             do (-let [(in-use bssid ssid mode channel rate signal bars security) (funcall process-output-parser line)]
+                                  (when ssid
+                                    (cl-pushnew (list (string= in-use "*") ssid bars channel rate security) data))))))
 
     (set-process-sentinel process
                           (lambda (process status)
@@ -186,7 +273,7 @@
 
                                 (let ((inhibit-read-only t))
                                   (delete-region (point-min) (point-max))
-                                  (insert "Wireless networks\n")
+                                  (insert "Wireless\n")
                                   (let* ((model (make-ctbl:model
                                                  :column-model schema
                                                  :data data

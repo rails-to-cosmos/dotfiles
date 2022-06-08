@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 let
-  home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/master.tar.gz";
+  home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-21.11.tar.gz";
 
   switch-layout = pkgs.writeShellScriptBin "switch-layout" (builtins.readFile ./programs/switch-layout.sh);
   brightness = pkgs.writeShellScriptBin "brightness" (builtins.readFile ./programs/brightness.sh);
@@ -41,9 +41,21 @@ in
   nixpkgs.config.allowUnfree = true;
 
   sound.enable = true;
-  hardware.pulseaudio.enable = true;
-  hardware.pulseaudio.package = pkgs.pulseaudioFull;
-  hardware.pulseaudio.support32Bit = true;
+  hardware.pulseaudio = {
+    enable = true;
+    package = pkgs.pulseaudioFull;
+    support32Bit = true;
+    extraModules = [ pkgs.pulseaudio-modules-bt ];
+  };
+
+  hardware.bluetooth = {
+    enable = true;
+    settings = {
+      General = {
+        Enable = "Source,Sink,Media,Socket";
+      };
+    };
+  };
 
   hardware.opengl.driSupport32Bit = true;
   hardware.nvidia.prime.offload.enable = true;
@@ -68,6 +80,8 @@ in
       ./services/syncthing/configuration.nix
       ./services/gpg-agent/configuration.nix
     ];
+
+    services.mpris-proxy.enable = true;
 
     programs.firefox = {
       enable = true;

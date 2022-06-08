@@ -1,10 +1,10 @@
 (my-project-provide emacs-config)
 
-(require 'danneskjold-theme)
-(enable-theme 'danneskjold)
+;; (require 'danneskjold-theme)
+;; (enable-theme 'danneskjold)
 
-;; (require 'danneskjold-light-theme)
-;; (enable-theme 'danneskjold-light)
+(require 'danneskjold-light-theme)
+(enable-theme 'danneskjold-light)
 
 (eval-after-load 'org-faces
   '(defcustom org-todo-keyword-faces nil

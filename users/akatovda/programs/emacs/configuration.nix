@@ -93,11 +93,14 @@
       wgrep
       whitespace-cleanup-mode
 
+      suggest
+      ctable
+
       yasnippet
       calfw
       calfw-org
       calfw-ical
-      ctable
+
       navigel
     ];
   };
