@@ -167,8 +167,8 @@
   (setq exwm-system-report-data
         (let ((now (current-time)))
           (a-assoc exwm-system-report-data
-                   :date (format-time-string "%a, %d %b %Y" now)
-                   :time (format-time-string "%H:%M:%S %Z" now)))))
+                   :date (format-time-string "%d %b %Y, %a" now)
+                   :time (format-time-string "%H:%M %Z" now)))))
 
 (defun exwm-system-report--set-battery-status ()
   (setq exwm-system-report-data
@@ -185,28 +185,29 @@
           (a-assoc exwm-system-report-data
                    :network (s-trim (shell-command-to-string "nmcli networking connectivity"))))))
 
-(defvar exwm-monitoring-mode-map (make-sparse-keymap)
-  "Keymap used by `exwm-monitoring-mode'.")
-
 (defvar exwm-monitoring-daemons
   #'(exwm-system-report--set-date-time
      exwm-system-report--set-battery-status
-     exwm-system-report--set-network-status)
+     exwm-system-report--set-network-status
+     exwm-system-report--refresh)
   "List of functions to run in a background.")
 
 (defvar exwm-monitoring-timers '()
   "List of active timers.")
 
-(define-minor-mode exwm-monitoring-mode
-    "Monitor exwm system in a background and refresh `exwm-system-report-data'."
-  nil #(" " 0 1 (rear-nonsticky t display nil font-lock-face (:family "FontAwesome" :height 1.2) face (:family "FontAwesome" :height 1.2))) exwm-monitoring-mode-map)
+(defconst exwm-eye-mode-lighter
+  #(" " 0 1 (rear-nonsticky t display nil font-lock-face (:family "FontAwesome" :height 1.2) face (:family "FontAwesome" :height 1.2))))
 
-(define-globalized-minor-mode global-exwm-monitoring-mode
-    exwm-monitoring-mode exwm-monitoring-mode nil
-    (cond (global-exwm-monitoring-mode (cl-loop for daemon in (reverse exwm-monitoring-daemons)
-                                          initially (setq exwm-system-report-data nil)
-                                          do (funcall daemon)
-                                          do (pushnew (run-with-idle-timer 1 t daemon) exwm-monitoring-timers)))
+(define-minor-mode exwm-eye-mode
+    "Monitor exwm system in a background and refresh `exwm-system-report-data'."
+  nil exwm-eye-mode-lighter nil)
+
+(define-globalized-minor-mode global-exwm-eye-mode
+    exwm-eye-mode exwm-eye-mode nil
+    (cond (global-exwm-eye-mode (cl-loop for daemon in (reverse exwm-monitoring-daemons)
+                                   initially (setq exwm-system-report-data nil)
+                                   do (funcall daemon)
+                                   do (pushnew (run-with-timer 1 60 daemon) exwm-monitoring-timers)))
           (t (mapc #'cancel-timer exwm-monitoring-timers)
              (setq exwm-monitoring-timers '()))))
 
@@ -214,9 +215,7 @@
 
 (defun exwm-system-report ()
   (interactive)
-  (let* ((buffer (get-buffer-create exwm-system-report-buffer))
-         (now (current-time))
-         (data (cl-loop for (key . value) in exwm-system-report-data
+  (let* ((data (cl-loop for (key . value) in exwm-system-report-data
                   collect (list (->> key
                                      symbol-name
                                      s-titleize
@@ -224,31 +223,30 @@
                                 value)))
          (schema (list (make-ctbl:cmodel :title "Key")
                        (make-ctbl:cmodel :title "Value")))
-         (model (make-ctbl:model
-                 :column-model schema
-                 :data data)))
-    (with-current-buffer buffer
+         (model (make-ctbl:model :column-model schema :data data)))
+    (with-current-buffer (get-buffer-create exwm-system-report-buffer)
       (exwm-system-report-mode)
       (let ((inhibit-read-only t))
         (delete-region (point-min) (point-max))
         (insert "Overview\n")
         (ctbl:create-table-component-region
          :model model
-         :keymap exwm-system-report-nm-map)))
-    (unless (eql (current-buffer) buffer)
-      (switch-to-buffer-other-window buffer))))
+         :keymap exwm-system-report-nm-map)))))
 
-(defun exwm-system-report:refresh ()
+(defun exwm-system-report--refresh ()
   (interactive)
-  (with-current-buffer exwm-system-report-buffer
-    (let ((point (point)))
-      (exwm-system-report)
-      (goto-char point)
-      (ctbl:navi-goto-cell (ctbl:cursor-to-cell)))))
+  (save-window-excursion
+    (with-current-buffer (get-buffer-create exwm-system-report-buffer)
+      (let ((point (point)))
+        (exwm-system-report)
+        (goto-char point)
+        (condition-case nil
+            (ctbl:navi-goto-cell (ctbl:cursor-to-cell))
+          (error nil))))))
 
 (defun exwm-network-report ()
   (interactive)
-  (let* ((buffer (get-buffer-create "*exwm-system-report*"))
+  (let* ((buffer (get-buffer-create exwm-system-report-buffer))
 
          (process (start-process "nmcli" buffer "nmcli" "-t" "device" "wifi"))
          (process-output-parser (lambda (line)

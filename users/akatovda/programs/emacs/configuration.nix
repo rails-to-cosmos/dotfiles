@@ -101,7 +101,8 @@
       calfw-org
       calfw-ical
 
-      navigel
+      flycheck-kotlin
+      kotlin-mode
     ];
   };
 }
