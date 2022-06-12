@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: nn
-# key: nn
-# --
-<< "\n";$0

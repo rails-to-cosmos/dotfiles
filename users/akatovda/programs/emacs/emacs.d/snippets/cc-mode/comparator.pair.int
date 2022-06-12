@@ -1,9 +1,0 @@
-# -*- mode: snippet -*-
-# name: comparator.pair.int
-# key: comparator.pair.int
-# --
-class Comparator
-{
-public:
-  int operator() (const pair<int, int> a, const pair<int, int> b) { return a.second > b.second; }
-};
