@@ -92,7 +92,6 @@
       wallpaper
       wgrep
       whitespace-cleanup-mode
-
       suggest
       ctable
 

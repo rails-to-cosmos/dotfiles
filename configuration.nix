@@ -61,11 +61,16 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    cask
+    docker
+    fail2ban
     feh
     gcc
     ghc
+    git
     gnumake
     gotop
+    grafana
     haskell.compiler.ghcjs
     haskellPackages.cabal-install
     haskellPackages.font-awesome-type
@@ -73,10 +78,19 @@
     haskellPackages.hoogle
     haskellPackages.stack
     htop
+    htop
     jre8
+    kompose
+    kubectl
+    kubernetes
+    kubernetes-helm
+    minikube
     nix-top
+    pciutils
     python3
     ripgrep
+    terraform
+    virtualbox
     wget
     wirelesstools
     xcompmgr

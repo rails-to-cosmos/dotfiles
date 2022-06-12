@@ -100,29 +100,15 @@ in
     home.packages = with pkgs; [
       pavucontrol
       brightness
-      cask
-      docker
-      fail2ban
-      git
-      grafana
-      htop
-      kompose
-      kubectl
-      kubernetes
-      minikube
       nyxt
-      python3
       switch-layout
       syncthing
       tdesktop
       terminator
       transmission
-      virtualbox
       vlc
       xournalpp
       youtube-dl
-      pciutils
-      jq
     ];
   });
 }

@@ -110,7 +110,6 @@
   ;; wgrep
   ;; whitespace-cleanup-mode
 
-  packages.exwm.exwm-system-report
   packages.expal
   packages.dired+
   packages.grab-and-drag
@@ -155,10 +154,14 @@
 
   lisp.core.keys)
 
+
 (add-to-list 'load-path "~/Stuff/org-glance")
 (require 'org-glance)
 (define-key global-map (kbd "C-x j") #'org-glance-form-action)
 (define-key org-mode-map (kbd "@") #'org-glance:@)
+
+(add-to-list 'load-path "~/Stuff/eye")
+(require 'eye "~/Stuff/eye/eye.el")
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
