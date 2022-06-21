@@ -15,12 +15,8 @@
       enable = true;
     };
 
-    # desktopManager = {
-    #   xfce.enable = false;
-    #   xterm.enable = false;
-    # };
-
-    videoDrivers = [ "modesetting" ];
+    videoDrivers = [ "modesetting" # "nvidia"
+                   ];
     useGlamor = true;
 
     displayManager = {

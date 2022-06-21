@@ -38,9 +38,8 @@ in
     shell = "/run/current-system/sw/bin/bash";
   };
 
-  nixpkgs.config.allowUnfree = true;
-
   sound.enable = true;
+
   hardware.pulseaudio = {
     enable = true;
     package = pkgs.pulseaudioFull;
@@ -109,6 +108,8 @@ in
       vlc
       xournalpp
       youtube-dl
+      steam
+      pamixer
     ];
   });
 }

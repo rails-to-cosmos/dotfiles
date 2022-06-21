@@ -7,6 +7,8 @@
       ./users/akatovda/configuration.nix
     ];
 
+  nixpkgs.config.allowUnfree = true;
+
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -78,7 +80,6 @@
     haskellPackages.hoogle
     haskellPackages.stack
     htop
-    htop
     jre8
     kompose
     kubectl
@@ -90,6 +91,7 @@
     python3
     ripgrep
     terraform
+    tree
     virtualbox
     wget
     wirelesstools
@@ -118,20 +120,23 @@
 
   # Enable the X11 windowing system.
 
-  # hardware = {
-  #   nvidia = {
-  #     modesetting = {
-  #       enable = true;
-  #     };
+  hardware = {
+    opengl.enable = true;
 
-  #     optimus_prime = {
-  #       enable = true;
-  #       # values are from lspci
-  #       # try lspci | grep -P 'VGA|3D'
-  #       intelBusId = "PCI:0:2:0";
-  #       nvidiaBusId = "PCI:1:0:0";
-  #     };
-  #   };
-  # }
-  # ;
+    nvidia = {
+      package = config.boot.kernelPackages.nvidiaPackages.stable;
+      modesetting = {
+        enable = true;
+      };
+
+      # optimus_prime = {
+      #   enable = true;
+      #   # values are from lspci
+      #   # try lspci | grep -P 'VGA|3D'
+      #   intelBusId = "PCI:0:2:0";
+      #   nvidiaBusId = "PCI:1:0:0";
+      # };
+    };
+  }
+  ;
 }
