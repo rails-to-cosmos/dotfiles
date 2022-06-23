@@ -15,8 +15,13 @@
       enable = true;
     };
 
-    videoDrivers = [ "modesetting" # "nvidia"
-                   ];
+    videoDrivers = [
+      # "nouveau"
+      # "intel"
+      # "modesetting"
+      "nvidia"
+    ];
+
     useGlamor = true;
 
     displayManager = {

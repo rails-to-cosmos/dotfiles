@@ -9,6 +9,20 @@
 
   nixpkgs.config.allowUnfree = true;
 
+  # nixpkgs.config = let
+  #   baseconfig = { allowUnfree = true; };
+  #   unstable = import <unstable> { config = baseconfig; };
+  # in baseconfig // {
+  #   packageOverrides = super: let self = super.pkgs; in
+  #                             {
+  #                               linuxPackages = unstable.linuxPackages_4_19.extend (self: super: {
+  #                                 nvidiaPackages = super.nvidiaPackages // {
+  #                                   stable = unstable.linuxPackages_4_19.nvidiaPackages.stable_418;
+  #                                 };
+  #                               });
+  #                             };
+  # };
+
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -59,6 +73,8 @@
       "memory mode" = "dbengine";
     };
   };
+
+  services.autorandr.enable = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -120,23 +136,70 @@
 
   # Enable the X11 windowing system.
 
-  hardware = {
-    opengl.enable = true;
-
-    nvidia = {
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
-      modesetting = {
-        enable = true;
-      };
-
-      # optimus_prime = {
-      #   enable = true;
-      #   # values are from lspci
-      #   # try lspci | grep -P 'VGA|3D'
-      #   intelBusId = "PCI:0:2:0";
-      #   nvidiaBusId = "PCI:1:0:0";
-      # };
+  hardware.nvidia = {
+    prime = {
+      offload.enable = true;
+      # Bus ID of the Intel GPU. You can find it using lspci, either under 3D or VGA
+      intelBusId = "PCI:0:2:0";
+      # Bus ID of the NVIDIA GPU. You can find it using lspci, either under 3D or VGA
+      nvidiaBusId = "PCI:1:0:0";
     };
-  }
-  ;
+    #powerManagement.enable = true;
+  };
+
+  boot.extraModprobeConfig = "options nvidia \"NVreg_DynamicPowerManagement=0x02\"\n";
+  boot.blacklistedKernelModules =  [ "nouveau" ];
+  services.tlp = {
+    enable = true;
+    settings = {
+      RUNTIME_PM_DRIVER_BLACKLIST = "nouveau mei_me";
+    };
+  };
+  # cpu stuff
+  boot.initrd.kernelModules = [ "intel_agp" "i915" ];
+  hardware.enableRedistributableFirmware = true;
+  hardware.cpu.intel.updateMicrocode = true;
+  hardware.opengl.extraPackages = with pkgs; [
+    vaapiIntel
+    vaapiVdpau
+    libvdpau-va-gl
+    intel-media-driver
+  ];
+  services.udev.extraRules = ''
+  # Remove NVIDIA USB xHCI Host Controller devices, if present
+  ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{remove}="1"
+
+  # Remove NVIDIA USB Type-C UCSI devices, if present
+  ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c8000", ATTR{remove}="1"
+
+  # Remove NVIDIA Audio devices, if present
+  ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x040300", ATTR{remove}="1"
+
+  # Enable runtime PM for NVIDIA VGA/3D controller devices on driver bind
+  ACTION=="bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030000", TEST=="power/control", ATTR{power/control}="auto"
+  ACTION=="bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030200", TEST=="power/control", ATTR{power/control}="auto"
+
+  # Disable runtime PM for NVIDIA VGA/3D controller devices on driver unbind
+  ACTION=="unbind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030000", TEST=="power/control", ATTR{power/control}="on"
+  ACTION=="unbind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030200", TEST=="power/control", ATTR{power/control}="on"
+  '';
+
+  # hardware = {
+  #   opengl.enable = true;
+
+  #   # nvidia = {
+  #   #   package = config.boot.kernelPackages.nvidiaPackages.stable;
+  #   #   modesetting = {
+  #   #     enable = true;
+  #   #   };
+
+  #   #   optimus_prime = {
+  #   #     enable = true;
+  #   #     # values are from lspci
+  #   #     # try lspci | grep -P 'VGA|3D'
+  #   #     intelBusId = "PCI:0:2:0";
+  #   #     nvidiaBusId = "PCI:1:0:0";
+  #   #   };
+  #   # };
+  # };
 }

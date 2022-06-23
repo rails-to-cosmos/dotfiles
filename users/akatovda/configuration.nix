@@ -57,13 +57,13 @@ in
   };
 
   hardware.opengl.driSupport32Bit = true;
-  hardware.nvidia.prime.offload.enable = true;
-  hardware.nvidia.prime = {
-    # Bus ID of the Intel GPU. You can find it using lspci, either under 3D or VGA
-    intelBusId = "00:02.0";
-    # Bus ID of the NVIDIA GPU. You can find it using lspci, either under 3D or VGA
-    nvidiaBusId = "01:00.0";
-  };
+  # hardware.nvidia.prime.offload.enable = true;
+  # hardware.nvidia.prime = {
+  #   # Bus ID of the Intel GPU. You can find it using lspci, either under 3D or VGA
+  #   intelBusId = "00:02.0";
+  #   # Bus ID of the NVIDIA GPU. You can find it using lspci, either under 3D or VGA
+  #   nvidiaBusId = "01:00.0";
+  # };
 
   # virtualisation.virtualbox.host.enable = true;
   # virtualisation.virtualbox.host.addNetworkInterface = true;
@@ -110,6 +110,7 @@ in
       youtube-dl
       steam
       pamixer
+      redshift
     ];
   });
 }
