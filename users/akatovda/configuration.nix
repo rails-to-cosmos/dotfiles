@@ -109,8 +109,10 @@ in
       xournalpp
       youtube-dl
       steam
+      steam-run-native
       pamixer
       redshift
+      wineWowPackages.stable
     ];
   });
 }
