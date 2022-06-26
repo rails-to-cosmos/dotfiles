@@ -1,6 +1,14 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
+
+  specialisation = {
+    external-display.configuration = {
+      system.nixos.tags = [ "external-display" ];
+      hardware.nvidia.prime.offload.enable = lib.mkForce false;
+      hardware.nvidia.powerManagement.enable = lib.mkForce false;
+    };
+  };
 
   imports =
     [
@@ -86,6 +94,7 @@
     haskellPackages.stack
     htop
     jre8
+    mu
     kompose
     kubectl
     kubernetes
@@ -94,7 +103,6 @@
     nix-top
     pciutils
     python3
-    micromamba
     ripgrep
     terraform
     tree
@@ -102,6 +110,8 @@
     wget
     wirelesstools
     xcompmgr
+    offlineimap
+    fetchmail
     xorg.libX11
     xorg.libXScrnSaver
     xorg.libXext
@@ -132,8 +142,8 @@
     nvidiaSettings = true;
     nvidiaPersistenced = true;
     prime = {
-      sync.enable = true;
-      # offload.enable = true;
+      # sync.enable = true;
+      offload.enable = true;
       # Bus ID of the Intel GPU. You can find it using lspci, either under 3D or VGA
       intelBusId = "PCI:0:2:0";
       # Bus ID of the NVIDIA GPU. You can find it using lspci, either under 3D or VGA
@@ -153,7 +163,6 @@
   boot.initrd.kernelModules = [ "intel_agp" "i915" ];
   hardware.opengl.enable = true;
   hardware.opengl.driSupport32Bit = true;
-
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.intel.updateMicrocode = true;
   hardware.opengl.extraPackages = with pkgs; [
@@ -162,6 +171,28 @@
     libvdpau-va-gl
     intel-media-driver
   ];
+
+  hardware.pulseaudio = {
+    enable = true;
+    package = pkgs.pulseaudioFull;
+    support32Bit = true;
+    extraModules = [ pkgs.pulseaudio-modules-bt ];
+  };
+
+  hardware.bluetooth = {
+    enable = true;
+    settings = {
+      General = {
+        Enable = "Source,Sink,Media,Socket";
+      };
+    };
+  };
+
+  # virtualisation.virtualbox.host.enable = true;
+  # virtualisation.virtualbox.host.addNetworkInterface = true;
+  virtualisation.docker.enable = true;
+  virtualisation.docker.enableNvidia = true;
+  virtualisation.docker.extraOptions = "--default-runtime=nvidia";
 
   services.udev.extraRules = ''
   # Remove NVIDIA USB xHCI Host Controller devices, if present
