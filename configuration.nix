@@ -61,6 +61,9 @@
   };
 
   services.autorandr.enable = true;
+  services.syslogd.enable = true;
+
+  programs.bcc.enable = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -91,6 +94,7 @@
     nix-top
     pciutils
     python3
+    micromamba
     ripgrep
     terraform
     tree

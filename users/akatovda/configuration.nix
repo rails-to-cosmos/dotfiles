@@ -2,19 +2,14 @@
 
 let
   home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-21.11.tar.gz";
-
   switch-layout = pkgs.writeShellScriptBin "switch-layout" (builtins.readFile ./programs/switch-layout.sh);
-  brightness = pkgs.writeShellScriptBin "brightness" (builtins.readFile ./programs/brightness.sh);
-
 in
-
 {
   imports = [
     (import "${home-manager}/nixos")
     ./environment.nix
     ./fonts.nix
-    ./services/xserver/configuration.nix
-    ./services/grafana/configuration.nix
+    ./programs/xserver.nix
   ];
 
   users.users.akatovda = {
@@ -73,11 +68,11 @@ in
 
   home-manager.users.akatovda = ({ config, ... }: {
     imports = [
-      ./programs/emacs/configuration.nix
+      ./programs/emacs.nix
       ./programs/rofi/configuration.nix
-      ./programs/git/configuration.nix
-      ./services/syncthing/configuration.nix
-      ./services/gpg-agent/configuration.nix
+      ./programs/git.nix
+      ./programs/syncthing.nix
+      ./programs/gpg-agent.nix
     ];
 
     services.mpris-proxy.enable = true;
@@ -98,7 +93,6 @@ in
     /* Here goes your home-manager config, eg home.packages = [ pkgs.foo ]; */
     home.packages = with pkgs; [
       pavucontrol
-      brightness
       nyxt
       switch-layout
       syncthing
@@ -112,7 +106,24 @@ in
       steam-run-native
       pamixer
       redshift
+      brightnessctl
       wineWowPackages.stable
+
+      (let
+        my-python-packages = python-packages: with python-packages; [
+          bandit
+          dash
+          pandas
+          pep8
+          pip
+          plotly
+          pylint
+          requests
+          virtualenv
+        ];
+        python-with-my-packages = python3.withPackages my-python-packages;
+      in
+        python-with-my-packages)
     ];
   });
 }
