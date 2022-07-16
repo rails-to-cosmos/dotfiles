@@ -80,6 +80,7 @@ in
     /* Here goes your home-manager config, eg home.packages = [ pkgs.foo ]; */
     home.packages = with pkgs; [
       usbutils
+      parted
       pavucontrol
       nyxt
       switch-layout
