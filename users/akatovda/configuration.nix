@@ -36,6 +36,8 @@ in
 
   sound.enable = true;
 
+  services.geoclue2.enable = true;
+
   home-manager.users.akatovda = ({ config, ... }: {
     imports = [
       ./programs/emacs.nix
@@ -46,6 +48,21 @@ in
     ];
 
     services.mpris-proxy.enable = true;
+
+    services.redshift = {
+      enable = true;
+      brightness = {
+        day = "1";
+        night = "1";
+      };
+
+      temperature = {
+        day = 5500;
+        night = 3700;
+      };
+
+      provider = "geoclue2";
+    };
 
     programs.firefox = {
       enable = true;
@@ -62,6 +79,7 @@ in
 
     /* Here goes your home-manager config, eg home.packages = [ pkgs.foo ]; */
     home.packages = with pkgs; [
+      usbutils
       pavucontrol
       nyxt
       switch-layout
@@ -76,7 +94,6 @@ in
       steam
       steam-run-native
       pamixer
-      redshift
       brightnessctl
       wineWowPackages.stable
 

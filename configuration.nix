@@ -71,7 +71,12 @@
   services.autorandr.enable = true;
   services.syslogd.enable = true;
 
-  programs.bcc.enable = true;
+  security.pam.loginLimits = [{
+    domain = "*";
+    type = "soft";
+    item = "nofile";
+    value = "40960";
+  }];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -110,6 +115,7 @@
     wget
     wirelesstools
     xcompmgr
+    unzip
     offlineimap
     fetchmail
     xorg.libX11
